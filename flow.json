@@ -23,6 +23,24 @@
 		}
 	},
 	"dependencies": {
+		"TrumpToken": {
+			"source": "mainnet://d3378b419feae4e3a4bb4f3349dba43a1b511760.TrumpToken",
+			"hash": "0000000000000000000000000000000000000000000000000000000000000000",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"mainnet": "d3378b419feae4e3a4bb4f3349dba43a1b511760",
+				"testnet": "d3378b419feae4e3a4bb4f3349dba43a1b511760"
+			}
+		},
+		"USDFToken": {
+			"source": "mainnet://2aabea2058b5ac2d339b163c6ab6f2b6d53aabed.USDFToken",
+			"hash": "0000000000000000000000000000000000000000000000000000000000000000",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"mainnet": "2aabea2058b5ac2d339b163c6ab6f2b6d53aabed",
+				"testnet": "2aabea2058b5ac2d339b163c6ab6f2b6d53aabed"
+			}
+		},
 		"Burner": {
 			"source": "mainnet://f233dcee88fe0abe.Burner",
 			"hash": "71af18e227984cd434a3ad00bb2f3618b76482842bae920ee55662c37c8bf331",

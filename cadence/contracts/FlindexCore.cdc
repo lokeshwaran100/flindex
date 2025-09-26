@@ -92,6 +92,15 @@ access(all) contract FlindexCore {
         init(assets: {String: UFix64}) {
             pre {
                 assets.keys.length > 0: "Index must contain at least one asset"
+                assets.keys.length <= 2: "Index can only contain maximum 2 assets (TRUMP and USDF)"
+            }
+            
+            // Verify only TRUMP and USDF tokens are allowed
+            for asset in assets.keys {
+                assert(
+                    asset == "TRUMP" || asset == "USDF",
+                    message: "Only TRUMP and USDF tokens are supported"
+                )
             }
             
             // Verify percentages sum to 1.0 (100%)
@@ -386,6 +395,15 @@ access(all) contract FlindexCore {
             name.length > 0: "Index name cannot be empty"
             description.length > 0: "Index description cannot be empty"
             composition.keys.length > 0: "Index must contain at least one asset"
+            composition.keys.length <= 2: "Index can only contain maximum 2 assets (TRUMP and USDF)"
+        }
+        
+        // Verify only TRUMP and USDF tokens are allowed
+        for asset in composition.keys {
+            assert(
+                asset == "TRUMP" || asset == "USDF",
+                message: "Only TRUMP and USDF tokens are supported"
+            )
         }
         
         let indexComposition = IndexComposition(assets: composition)
@@ -416,6 +434,15 @@ access(all) contract FlindexCore {
     access(all) fun rebalanceIndex(indexId: UInt64, creator: Address, newComposition: {String: UFix64}) {
         pre {
             self.indices[indexId] != nil: "Index does not exist"
+            newComposition.keys.length <= 2: "Index can only contain maximum 2 assets (TRUMP and USDF)"
+        }
+        
+        // Verify only TRUMP and USDF tokens are allowed
+        for asset in newComposition.keys {
+            assert(
+                asset == "TRUMP" || asset == "USDF",
+                message: "Only TRUMP and USDF tokens are supported"
+            )
         }
         
         let metadata = self.indices[indexId]!
@@ -573,16 +600,8 @@ access(all) contract FlindexCore {
         // Initialize storage
         self.indices = {}
         self.mockPrices = {
-            "BTC": 45000.0,
-            "ETH": 3000.0,
-            "FLOW": 1.0,
-            "USDC": 1.0,
-            "SOL": 100.0,
-            "ADA": 0.5,
-            "DOT": 7.0,
-            "LINK": 15.0,
-            "UNI": 6.0,
-            "AVAX": 25.0
+            "TRUMP": 0.0001,  // Trump token price in Flow
+            "USDF": 1.0       // USDF stablecoin price (1:1 with Flow)
         }
         
         // Create and store minter

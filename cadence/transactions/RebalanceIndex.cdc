@@ -1,12 +1,11 @@
 import FlindexCreator from "../contracts/FlindexCreator.cdc"
 
 /// Transaction for a creator to rebalance an existing index
+/// Only supports TRUMP and USDF tokens
 transaction(
     indexId: UInt64,
-    btcPercentage: UFix64,
-    ethPercentage: UFix64,
-    flowPercentage: UFix64,
-    usdcPercentage: UFix64
+    trumpPercentage: UFix64,
+    usdfPercentage: UFix64
 ) {
     let creatorRef: &FlindexCreator.Creator
     
@@ -20,10 +19,8 @@ transaction(
     execute {
         // Create new composition dictionary
         let newComposition: {String: UFix64} = {
-            "BTC": btcPercentage,
-            "ETH": ethPercentage,
-            "FLOW": flowPercentage,
-            "USDC": usdcPercentage
+            "TRUMP": trumpPercentage,
+            "USDF": usdfPercentage
         }
         
         // Verify percentages sum to 1.0

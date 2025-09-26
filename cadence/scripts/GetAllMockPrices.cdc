@@ -1,8 +1,9 @@
 import FlindexCore from "../contracts/FlindexCore.cdc"
 
 /// Script to get all available mock asset prices
+/// Only supports TRUMP and USDF tokens
 access(all) fun main(): {String: UFix64} {
-    let assets = ["BTC", "ETH", "FLOW", "USDC", "SOL", "ADA", "DOT", "LINK", "UNI", "AVAX"]
+    let assets = ["TRUMP", "USDF"]
     let prices: {String: UFix64} = {}
     
     for asset in assets {
