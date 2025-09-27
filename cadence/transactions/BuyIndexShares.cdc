@@ -33,11 +33,11 @@ transaction(
         self.index = Flindex.borrowIndex(id: indexID)
         self.investor = acct.address
 
-        self.flowVault = acct.borrow<&FlowToken.Vault>(from: flowVaultPath)
+        self.flowVault = acct.storage.borrow<&FlowToken.Vault>(from: flowVaultPath)
             ?? panic("Flow vault not found at supplied path")
         self.payment <- self.flowVault.withdraw(amount: flowAmount)
 
-        self.positions = acct.borrow<&Flindex.UserPositions>(from: Flindex.UserPositionsStoragePath)
+        self.positions = acct.storage.borrow<&Flindex.UserPositions>(from: Flindex.UserPositionsStoragePath)
 
         self.flowToTrumpCap = getAccount(flowToTrumpProvider)
             .getCapability<&{DeFiActions.Swapper}>(flowToTrumpPath)

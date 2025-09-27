@@ -17,20 +17,20 @@ transaction(
     var usdfVault: @{FungibleToken.Vault}?
 
     prepare(acct: auth(BorrowValue, SaveValue, LoadValue) &Account) {
-        self.admin = acct.borrow<&Flindex.Admin>(from: Flindex.AdminStoragePath)
+        self.admin = acct.storage.borrow<&Flindex.Admin>(from: Flindex.AdminStoragePath)
             ?? panic("Missing Flindex admin resource")
         self.creator = acct.address
 
-        let trumpVault <- acct.load<@{FungibleToken.Vault}>(from: trumpVaultPath)
+        let trumpVault <- acct.storage.load<@{FungibleToken.Vault}>(from: trumpVaultPath)
             ?? panic("TRUMP vault not found at provided path")
         let replacementTrump <- trumpVault.createEmptyVault()
-        acct.save(<-replacementTrump, to: trumpVaultPath)
+        acct.storage.save(<-replacementTrump, to: trumpVaultPath)
         self.trumpVault <- trumpVault
 
-        let usdfVault <- acct.load<@{FungibleToken.Vault}>(from: usdfVaultPath)
+        let usdfVault <- acct.storage.load<@{FungibleToken.Vault}>(from: usdfVaultPath)
             ?? panic("USDF vault not found at provided path")
         let replacementUsdf <- usdfVault.createEmptyVault()
-        acct.save(<-replacementUsdf, to: usdfVaultPath)
+        acct.storage.save(<-replacementUsdf, to: usdfVaultPath)
         self.usdfVault <- usdfVault
     }
 
