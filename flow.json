@@ -9,9 +9,9 @@
 		"Flindex": {
 			"source": "cadence/contracts/Flindex.cdc",
 			"aliases": {
-				"testing": "0000000000000007",
-				"testnet": "0000000000000007",
-				"mainnet": "0000000000000007"
+				"emulator": "f8d6e0586b0a20c7",
+				"testnet": "daac4c96b1ea362d",
+				"mainnet": "0e5b1dececaca3a8"
 			}
 		}
 	},
@@ -30,21 +30,53 @@
 			}
 		}
 	},
+	"dependencies": {
+		"FlowToken": {
+			"source": "mainnet://1654653399040a61.FlowToken",
+			"hash": "cefb25fd19d9fc80ce02896267eb6157a6b0df7b1935caa8641421fe34c0e67a",
+			"aliases": {
+				"emulator": "0ae53cb6e3f42a79",
+				"mainnet": "1654653399040a61",
+				"testnet": "7e60df042a9c0868"
+			}
+		},
+		"FungibleToken": {
+			"source": "mainnet://f233dcee88fe0abe.FungibleToken",
+			"hash": "23c1159cf99b2b039b6b868d782d57ae39b8d784045d81597f100a4782f0285b",
+			"aliases": {
+				"emulator": "ee82856bf20e2aa6",
+				"mainnet": "f233dcee88fe0abe",
+				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"DeFiActions": {
+			"source": "mainnet://92195d814edf9cb0.DeFiActions",
+			"hash": "67175b2a2569bdff79c221ec7ac823c79dd59c83bce07582cfc3b675dfbe6207",
+			"aliases": {
+				"mainnet": "92195d814edf9cb0",
+				"testnet": "4c2ff9dd03ab442f"
+			}
+		},
+		"SwapConnectors": {
+			"source": "mainnet://0bce04a00aedf132.SwapConnectors",
+			"hash": "5cec3b1be3c454d3949686ddfb4cb5dc36e91ae7cec4cca31f3d416cd7772006",
+			"aliases": {
+				"mainnet": "0bce04a00aedf132",
+				"testnet": "addd594cf410166a"
+			}
+		},
+		"IncrementFiSwapConnectors": {
+			"source": "mainnet://efa9bd7d1b17f1ed.IncrementFiSwapConnectors",
+			"hash": "f018bbc0e8d21534280570a02f839ae24c7dde4064232c181c2c1bb5d94363bb",
+			"aliases": {
+				"mainnet": "efa9bd7d1b17f1ed",
+				"testnet": "49bae091e5ea16b5"
+			}
+		}
+	},
 	"deployments": {
-		"testing": {
-			"emulator-account": [
-				"Flindex"
-			]
-		},
-		"testnet": {
-			"emulator-account": [
-				"Flindex"
-			]
-		},
-		"mainnet": {
-			"emulator-account": [
-				"Flindex"
-			]
+		"emulator": {
+			"emulator-account": ["Flindex"]
 		}
 	}
 }

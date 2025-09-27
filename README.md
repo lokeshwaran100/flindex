@@ -1,186 +1,153 @@
-# Flindex
-Flindex is a decentralized, fully Cadence-based crypto index fund on Flow blockchain. It enables creators to launch and manage diversified index tokens with real-time pricing via Pyth oracles. Users buy/sell indices using Flow tokens, paying small fees generating passive income for creators.
+# Flindex - Decentralized Crypto Index Fund Platform
 
-## 👋 Welcome Flow Developer!
+## Overview
 
-This project is a starting point for you to develop smart contracts on the Flow Blockchain. It comes with example contracts, scripts, transactions, and tests to help you get started.
+Flindex is a decentralized on-chain crypto index fund platform fully developed using Cadence smart contracts on the Flow blockchain. The platform allows creators to launch and manage index funds comprising exactly two tokens: TRUMP and USDF, each equally weighted at 50%. Users invest using Flow tokens, which are swapped into TRUMP and USDF tokens via DeFiActions connectors and securely held in a vault. Each index is tracked using a unique index ID, which records user holdings directly. When users redeem, the vault swaps the underlying tokens back to Flow and returns it to the user.
 
-## 🔨 Getting Started
+## Features
 
-Here are some essential resources to help you hit the ground running:
+- **Fully Cadence-based smart contract architecture** on Flow blockchain
+- **Creator-driven index fund** with fixed 50-50 composition of TRUMP and USDF tokens
+- **DeFiActions connector integration** to convert Flow tokens into index components and vice versa
+- **Secure token vaults** while mapped against a unique index ID for each user's share
+- **Seamless buy/sell operations** using Flow tokens
 
-- **[Flow Documentation](https://developers.flow.com/)** - The official Flow Documentation is a great starting point to start learning about [building](https://developers.flow.com/build/flow) on Flow.
-- **[Cadence Documentation](https://cadence-lang.org/docs/language)** - Cadence is the native language for the Flow Blockchain. It is a resource-oriented programming language that is designed for developing smart contracts.  The documentation is a great place to start learning about the language.
-- **[Visual Studio Code](https://code.visualstudio.com/)** and the **[Cadence Extension](https://marketplace.visualstudio.com/items?itemName=onflow.cadence)** - It is recommended to use the Visual Studio Code IDE with the Cadence extension installed.  This will provide syntax highlighting, code completion, and other features to support Cadence development.
-- **[Flow Clients](https://developers.flow.com/tools/clients)** - There are clients available in multiple languages to interact with the Flow Blockchain.  You can use these clients to interact with your smart contracts, run transactions, and query data from the network.
-- **[Block Explorers](https://developers.flow.com/ecosystem/block-explorers)** - Block explorers are tools that allow you to explore on-chain data.  You can use them to view transactions, accounts, events, and other information.  [Flowser](https://flowser.dev/) is a powerful block explorer for local development on the Flow Emulator.
+## Token Information
 
-## 📦 Project Structure
+Based on Flow EVM mainnet data:
+- **TRUMP Token**: `0xd3378b419feae4e3a4bb4f3349dba43a1b511760` (18 decimals)
+- **USDF Token**: `0x2aabea2058b5ac2d339b163c6ab6f2b6d53aabed` (6 decimals)
 
-Your project has been set up with the following structure:
+## Project Structure
 
-- `flow.json` - This is the configuration file for your project (analogous to a `package.json` file for NPM).  It has been initialized with a basic configuration to get started.
-- `/cadence` - This is where your Cadence smart contracts code lives
-
-Inside the `cadence` folder you will find:
-- `/contracts` - This folder contains your Cadence contracts (these are deployed to the network and contain the business logic for your application)
-  - `Counter.cdc`
-- `/scripts` - This folder contains your Cadence scripts (read-only operations)
-  - `GetCounter.cdc`
-- `/transactions` - This folder contains your Cadence transactions (state-changing operations)
-  - `IncrementCounter.cdc`
-- `/tests` - This folder contains your Cadence tests (integration tests for your contracts, scripts, and transactions to verify they behave as expected)
-  - `Counter_test.cdc`
-
-## Running the Existing Project
-
-### Executing the `GetCounter` Script
-
-To run the `GetCounter` script, use the following command:
-
-```shell
-flow scripts execute cadence/scripts/GetCounter.cdc
+```
+flindex/
+├── cadence/
+│   ├── contracts/
+│   │   └── Flindex.cdc          # Main contract
+│   ├── transactions/
+│   │   ├── CreateIndex.cdc      # Create new index
+│   │   ├── BuyIndexShares.cdc   # Buy index shares
+│   │   └── SellIndexShares.cdc  # Sell index shares
+│   ├── scripts/
+│   │   ├── GetIndexInfo.cdc     # Get index information
+│   │   ├── GetUserPositions.cdc # Get user positions
+│   │   └── GetAllIndices.cdc    # Get all indices
+│   └── tests/
+│       └── Flindex_test.cdc     # Test suite
+├── flow.json                    # Flow configuration
+└── README.md                    # This file
 ```
 
-### Sending the `IncrementCounter` Transaction
+## Core Components
 
-To run the `IncrementCounter` transaction, use the following command:
+### 1. Admin Resource
+- Creates new indices and tracks global counter of `IndexID`
+- Maintains a registry of active indices
 
-```shell
-flow transactions send cadence/transactions/IncrementCounter.cdc
+### 2. Index Resource
+- Holds vaults for TRUMP and USDF tokens
+- Tracks `totalShares` and per-user `holdings` (address → shares)
+- Provides functions for calculating NAV and price per share (`pps`)
+
+### 3. UserPositions Resource
+- User-owned resource storing their positions across multiple indices
+- Mapping of `IndexID → shares`
+
+## Key Functions
+
+### Main Contract Functions
+- `createIndex(creator)`: Launches a new index with fixed composition of TRUMP and USDF
+- `buyIndex(user, flowAmount)`: Accepts Flow tokens, swaps into TRUMP/USDF, issues shares
+- `sellIndex(user, indexId, shareAmount)`: Redeems shares, swaps back to Flow, transfers to user
+
+### Events
+- `IndexCreated(id, creator)`
+- `IndexBought(id, user, flowIn, sharesOut)`
+- `IndexSold(id, user, sharesIn, flowOut)`
+
+## Usage
+
+### 1. Create an Index
+```bash
+flow transactions send cadence/transactions/CreateIndex.cdc --signer emulator-account
 ```
 
-To learn more about using the CLI, check out the [Flow CLI Documentation](https://developers.flow.com/tools/flow-cli).
-
-## 👨‍💻 Start Developing
-
-### Creating a New Contract
-
-To add a new contract to your project, run the following command:
-
-```shell
-flow generate contract
+### 2. Buy Index Shares
+```bash
+flow transactions send cadence/transactions/BuyIndexShares.cdc \
+  --args-json '[
+    {"type": "UInt64", "value": "1"},
+    {"type": "UFix64", "value": "10.0"}
+  ]' \
+  --signer emulator-account
 ```
 
-This command will create a new contract file and add it to the `flow.json` configuration file.
-
-### Creating a New Script
-
-To add a new script to your project, run the following command:
-
-```shell
-flow generate script
+### 3. Sell Index Shares
+```bash
+flow transactions send cadence/transactions/SellIndexShares.cdc \
+  --args-json '[
+    {"type": "UInt64", "value": "1"},
+    {"type": "UFix64", "value": "5.0"}
+  ]' \
+  --signer emulator-account
 ```
 
-This command will create a new script file.  Scripts are used to read data from the blockchain and do not modify state (i.e. get the current balance of an account, get a user's NFTs, etc).
-
-You can import any of your own contracts or installed dependencies in your script file using the `import` keyword.  For example:
-
-```cadence
-import "Counter"
+### 4. Query Index Information
+```bash
+flow scripts execute cadence/scripts/GetIndexInfo.cdc \
+  --args-json '[{"type": "UInt64", "value": "1"}]'
 ```
 
-### Creating a New Transaction
+## Dependencies
 
-To add a new transaction to your project you can use the following command:
+The project uses the following Flow ecosystem contracts:
+- **FungibleToken**: Standard token interface
+- **FlowToken**: Native Flow token
+- **DeFiActions**: DeFi composition framework
+- **SwapConnectors**: Token swapping connectors
+- **IncrementFiSwapConnectors**: IncrementFi-specific swap connectors
 
-```shell
-flow generate transaction
-```
+## Development
 
-This command will create a new transaction file.  Transactions are used to modify the state of the blockchain (i.e purchase an NFT, transfer tokens, etc).
+### Prerequisites
+- Flow CLI installed
+- Flow emulator running
 
-You can import any dependencies as you would in a script file.
+### Setup
+1. Clone the repository
+2. Install dependencies: `flow dependencies install`
+3. Start emulator: `flow emulator`
+4. Deploy contracts: `flow project deploy`
 
-### Creating a New Test
-
-To add a new test to your project you can use the following command:
-
-```shell
-flow generate test
-```
-
-This command will create a new test file.  Tests are used to verify that your contracts, scripts, and transactions are working as expected.
-
-### Installing External Dependencies
-
-If you want to use external contract dependencies (such as NonFungibleToken, FlowToken, FungibleToken, etc.) you can install them using [Flow CLI Dependency Manager](https://developers.flow.com/tools/flow-cli/dependency-manager).
-
-For example, to install the NonFungibleToken contract you can use the following command:
-
-```shell
-flow deps add mainnet://1d7e57aa55817448.NonFungibleToken
-```
-
-Contracts can be found using [ContractBrowser](https://contractbrowser.com/), but be sure to verify the authenticity before using third-party contracts in your project.
-
-## 🧪 Testing
-
-To verify that your project is working as expected you can run the tests using the following command:
-
-```shell
+### Testing
+```bash
 flow test
 ```
 
-This command will run all tests with the `_test.cdc` suffix (these can be found in the `cadence/tests` folder). You can add more tests here using the `flow generate test` command (or by creating them manually).
+## Architecture
 
-To learn more about testing in Cadence, check out the [Cadence Test Framework Documentation](https://cadence-lang.org/docs/testing-framework).
+The platform follows a modular architecture with clear separation of concerns:
 
-## 🚀 Deploying Your Project
+1. **Contract Layer**: Core business logic in Cadence
+2. **Transaction Layer**: User interactions
+3. **Script Layer**: Query operations
+4. **Integration Layer**: DeFiActions connectors for token swapping
 
-To deploy your project to the Flow network, you must first have a Flow account and have configured your deployment targets in the `flow.json` configuration file.
+## Security Considerations
 
-You can create a new Flow account using the following command:
+- All operations are validated with pre/post conditions
+- User positions are tracked securely
+- Token vaults are protected with proper access controls
+- Share calculations are transparent and auditable
 
-```shell
-flow accounts create
-```
+## Future Enhancements
 
-Learn more about setting up deployment targets in the [Flow CLI documentation](https://developers.flow.com/tools/flow-cli/deployment/project-contracts).
+- Dynamic rebalancing of index composition
+- Multiple token support beyond TRUMP/USDF
+- Advanced portfolio management features
+- Integration with more DeFi protocols
 
-### Deploying to the Flow Emulator
+## License
 
-To deploy your project to the Flow Emulator, start the emulator using the following command:
-
-```shell
-flow emulator --start
-```
-
-To deploy your project, run the following command:
-
-```shell
-flow project deploy --network=emulator
-```
-
-This command will start the Flow Emulator and deploy your project to it. You can now interact with your project using the Flow CLI or alternate [client](https://developers.flow.com/tools/clients).
-
-### Deploying to Flow Testnet
-
-To deploy your project to Flow Testnet you can use the following command:
-
-```shell
-flow project deploy --network=testnet
-```
-
-This command will deploy your project to Flow Testnet. You can now interact with your project on this network using the Flow CLI or any other Flow client.
-
-### Deploying to Flow Mainnet
-
-To deploy your project to Flow Mainnet you can use the following command:
-
-```shell
-flow project deploy --network=mainnet
-```
-
-This command will deploy your project to Flow Mainnet. You can now interact with your project using the Flow CLI or alternate [client](https://developers.flow.com/tools/clients).
-
-## 📚 Other Resources
-
-- [Cadence Design Patterns](https://cadence-lang.org/docs/design-patterns)
-- [Cadence Anti-Patterns](https://cadence-lang.org/docs/anti-patterns)
-- [Flow Core Contracts](https://developers.flow.com/build/core-contracts)
-
-## 🤝 Community
-- [Flow Community Forum](https://forum.flow.com/)
-- [Flow Discord](https://discord.gg/flow)
-- [Flow Twitter](https://x.com/flow_blockchain)
+This project is open source and available under the MIT License.

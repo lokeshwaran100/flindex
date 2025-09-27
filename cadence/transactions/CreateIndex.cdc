@@ -1,28 +1,28 @@
+import "FungibleToken"
+import "FlowToken"
 import "Flindex"
 
 /// Transaction to create a new index fund
+/// Sets up a new index with TRUMP/USDF composition
 transaction() {
-    let flindex: &Flindex.Index
-    let indexId: UInt64
-    
+    let flindex: &Flindex.Admin
+    let newIndexID: UInt64
+
     prepare(acct: auth(BorrowValue, SaveValue, IssueStorageCapabilityController) &Account) {
-        // Get Flindex contract reference
-        self.flindex = acct.storage.borrow<&Flindex.Index>(from: Flindex.IndexStoragePath)
-            ?? panic("Flindex not found in storage")
-        
-        // Create the index
-        self.indexId = self.flindex.createIndex(creator: acct.address)
+        // Get Flindex admin reference
+        self.flindex = acct.capabilities.storage
+            .borrow<&Flindex.Admin>(from: Flindex.AdminStoragePath)
+            ?? panic("Flindex admin not found")
+
+        // Create new index
+        self.newIndexID = self.flindex.createIndex(creator: acct.address)
     }
-    
-    execute {
-        // Index creation is handled in the prepare block
-        // The index is now available for users to invest in
-    }
-    
+
     post {
-        // Verify that the index was created
-        let indexInfo = self.flindex.getIndexInfo(indexId: self.indexId)
-        indexInfo != nil: "Index was not created"
-        indexInfo!.creator == acct.address: "Index creator mismatch"
+        self.newIndexID > 0: "Index ID must be positive"
+    }
+
+    execute {
+        log("Successfully created index with ID: \(self.newIndexID)")
     }
 }
