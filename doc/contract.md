@@ -2,74 +2,68 @@
 
 ## 1. Project Overview
 
-**Description:**  
-Flindex is a decentralized on-chain crypto index fund platform fully built using Cadence smart contracts on the Flow blockchain. The platform enables creators to launch and manage diversified index tokens composed of multiple crypto assets and users to invest in them using Flow tokens. Real-time pricing for index valuation, buying, selling, and rebalancing is powered by Pyth network oracles for secure and accurate asset pricing. Passive income is generated to index creators from platform fees, maintaining ecosystem value.
+**Description:**
+Flindex is a decentralized on-chain crypto index fund platform fully developed using Cadence smart contracts on the Flow blockchain. The platform allows creators to launch and manage an index fund comprising exactly two tokens: TRUMP and USDF, each equally weighted at 50%. Users invest using Flow tokens, which are swapped into TRUMP and USDF tokens via a Swapper action and securely held in a vault. Each index is tracked using a unique index ID, which records user holdings directly. When users redeem, the vault swaps the underlying tokens back to Flow and returns it to the user.
 
-**Main Features:**  
-- Full Cadence smart contract architecture on Flow blockchain  
-- Index creation and rebalancing by creators via project token payments  
-- Secure, real-time valuation and swaps via Pyth oracle integration  
-- Users buy/sell index tokens with Flow, paying 0.1% fees shared between treasury and creators  
+**Main Features:**
 
-**Future Scope:**  
-- Weekly leaderboard rewards for top-performing creators  
-- On-chain randomness with Pyth Entropy for user engagement rewards  
-- DAO governance to manage scam index voting and closure  
-- Privacy-preserving creator doxxing with self-sovereign identity protocols
+* Fully Cadence-based smart contract architecture on Flow blockchain
+* Creator-driven index fund with fixed 50-50 composition of TRUMP and USDF tokens
+* Swapper action integration to convert Flow tokens into index components and vice versa
+* Tokens securely held in vault while mapped against a unique index ID for each user’s share
+* Users buy and sell index shares seamlessly using Flow
+
+---
+
+## 2. Data Structures & Storage Model
+
+### Types & Identifiers
+
+* `IndexID = UInt64` – unique identifier for each index instance
+* Shares are numerical units tracked per user under each index ID
+
+### Core Components
+
+* **Admin Resource**
+
+  * Creates new indices and tracks global counter of `IndexID`
+  * Maintains a registry of active indices
+
+* **Index Resource**
+
+  * Holds vaults for TRUMP and USDF
+  * Tracks `totalShares` and per-user `holdings` (address → shares)
+  * Provides functions for calculating NAV and price per share (`pps`)
+
+* **UserPositions Resource** (optional helper)
+
+  * User-owned resource storing their positions across multiple indices
+  * Mapping of `IndexID → shares`
+
+### Events
+
+* `IndexCreated(id, creator)`
+* `IndexBought(id, user, flowIn, sharesOut)`
+* `IndexSold(id, user, sharesIn, flowOut)`
+
+### Invariants
+
+* `totalShares == sum(holdings[*].shares)`
+* Portfolio is always maintained 50/50 TRUMP–USDF at transaction boundaries
 
 ---
 
 ## 3. High-Level Technical Description
 
-### Contracts
-
-- **FlindexCore.cdc:** Core contract managing index token minting, burning, valuation, and user buy/sell transactions. Integrates with Pyth oracles for accurate pricing.  
-- **FlindexCreator.cdc:** Manages permissions for creators, index creation, and rebalancing upon project token payment.  
-- **FlindexTreasury.cdc:** Handles fee collection and distribution between the platform treasury and creators as passive income.
-
-### Key Types
-
-- **Resource: `IndexToken`**  
-  Represents ownership in a diversified crypto index with tracked valuation and metadata.  
-- **Struct: `IndexMetadata`**  
-  Holds configuration including index composition, creator info, and rebalance history.
-
 ### Main Functions
 
-- `createIndex(creator, composition)`: Allows project token-paying creators to launch new indices.  
-- `rebalanceIndex(creator, newComposition)`: Creator-triggered index composition update requiring project tokens.  
-- `buyIndex(user, flowAmount)`: Lets users purchase index tokens at a current valuation fetched from Pyth oracles; applies buy fees.  
-- `sellIndex(user, indexTokenAmount)`: User sells index tokens, with Flow returned calculated via Pyth oracle prices minus fees.
+* `createIndex(creator)`:
+  Launches a new index with fixed composition of TRUMP and USDF. Generates a unique `IndexID` and initializes vaults.
 
----
+* `buyIndex(user, flowAmount)`:
+  Accepts Flow tokens from the user, swaps equally by value into TRUMP and USDF via the Swapper action, deposits tokens into index vaults, computes shares from NAV/pps, and records them under the user’s holdings for that index.
 
-## 4. Standards Implemented
+* `sellIndex(user, indexId, shareAmount)`:
+  Validates the user’s shares for the given index, calculates redemption value using NAV/pps, redeems proportional TRUMP and USDF, swaps them back to Flow, transfers Flow to the user, and updates holdings.
 
-- FungibleToken (for index tokens and project tokens)  
-- MetadataViews (providing standardized metadata interfaces for tokens)  
-- Pyth Network Integration (secure asset pricing and randomness)
-  
----
-
-## 6. Contract, Transaction, and Script Descriptions
-
-- **FlindexCore.cdc**  
-  Handles all core index-related operations including minting/burning tokens, fee application, and integration with Pyth oracles for real-time valuation.  
-
-- **FlindexCreator.cdc**  
-  Manages index creation and rebalancing permissions, enforcing project token fee payment.  
-
-- **FlindexTreasury.cdc**  
-  Maintains fee collection and distribution logic to the treasury and creators.
-
----
-
-## 7. Testing
-
-### Unit Tests
-
-- Full coverage for index creation, buy/sell logic, rebalancing, and fee handling.  
-- Resource lifecycle tests for `IndexToken` minting and burning.  
-- Verification of event emission and access control enforcement.
-
----
+*Note:* All conversions rely exclusively on the Swapper action for secure and efficient swaps.
