@@ -5,6 +5,14 @@
 			"aliases": {
 				"testing": "0000000000000007"
 			}
+		},
+		"Flindex": {
+			"source": "cadence/contracts/Flindex.cdc",
+			"aliases": {
+				"testing": "0000000000000007",
+				"testnet": "0000000000000007",
+				"mainnet": "0000000000000007"
+			}
 		}
 	},
 	"networks": {
@@ -20,6 +28,23 @@
 				"type": "file",
 				"location": "emulator-account.pkey"
 			}
+		}
+	},
+	"deployments": {
+		"testing": {
+			"emulator-account": [
+				"Flindex"
+			]
+		},
+		"testnet": {
+			"emulator-account": [
+				"Flindex"
+			]
+		},
+		"mainnet": {
+			"emulator-account": [
+				"Flindex"
+			]
 		}
 	}
 }
