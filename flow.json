@@ -6,13 +6,28 @@
 				"emulator": "f8d6e0586b0a20c7",
 				"testing": "0000000000000007"
 			}
+		},
+		"DeFiActions": {
+			"source": "imports/92195d814edf9cb0/DeFiActions.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testing": "0000000000000007"
+			}
+		},
+		"DeFiActionsMathUtils": {
+			"source": "imports/92195d814edf9cb0/DeFiActionsMathUtils.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testing": "0000000000000007"
+			}
+		},
+		"DeFiActionsUtils": {
+			"source": "imports/92195d814edf9cb0/DeFiActionsUtils.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testing": "0000000000000007"
+			}
 		}
-	},
-	"networks": {
-		"emulator": "127.0.0.1:3569",
-		"mainnet": "access.mainnet.nodes.onflow.org:9000",
-		"testing": "127.0.0.1:3569",
-		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"dependencies": {
 		"BandOracle": {
@@ -75,24 +90,30 @@
 			"source": "mainnet://92195d814edf9cb0.DeFiActions",
 			"hash": "67175b2a2569bdff79c221ec7ac823c79dd59c83bce07582cfc3b675dfbe6207",
 			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "92195d814edf9cb0",
-				"testnet": "4c2ff9dd03ab442f"
+				"testnet": "4c2ff9dd03ab442f",
+				"testing": "0000000000000007"
 			}
 		},
 		"DeFiActionsMathUtils": {
 			"source": "mainnet://92195d814edf9cb0.DeFiActionsMathUtils",
 			"hash": "f2ae511846ea9a545380968837f47a4198447c008e575047f3ace3b7cf782067",
 			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "92195d814edf9cb0",
-				"testnet": "4c2ff9dd03ab442f"
+				"testnet": "4c2ff9dd03ab442f",
+				"testing": "0000000000000007"
 			}
 		},
 		"DeFiActionsUtils": {
 			"source": "mainnet://92195d814edf9cb0.DeFiActionsUtils",
 			"hash": "d01ab8cd8a57aee3e35ca8a9038f98de2321d6246e03285e0107ef6b4191bff1",
 			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "92195d814edf9cb0",
-				"testnet": "4c2ff9dd03ab442f"
+				"testnet": "4c2ff9dd03ab442f",
+				"testing": "0000000000000007"
 			}
 		},
 		"EVM": {
@@ -492,6 +513,12 @@
 			}
 		}
 	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testing": "127.0.0.1:3569",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
 	"accounts": {
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
@@ -502,8 +529,19 @@
 		}
 	},
 	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"DeFiActions",
+				"DeFiActionsMathUtils", 
+				"DeFiActionsUtils",
+				"Flindex"
+			]
+		},
 		"testing": {
 			"emulator-account": [
+				"DeFiActions",
+				"DeFiActionsMathUtils",
+				"DeFiActionsUtils", 
 				"Flindex"
 			]
 		}

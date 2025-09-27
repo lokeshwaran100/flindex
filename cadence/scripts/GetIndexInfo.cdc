@@ -2,17 +2,17 @@ import "Flindex"
 
 /// Returns high-level information about a Flindex index including metadata, share supply,
 /// and the raw balances held inside the TRUMP and USDF vaults.
-pub struct IndexInfo {
-    pub let id: Flindex.IndexID
-    pub let name: String
-    pub let description: String
-    pub let managementFeeBps: UInt64
-    pub let totalShares: UFix64
-    pub let trumpBalance: UFix64
-    pub let usdfBalance: UFix64
+access(all) struct IndexInfo {
+    access(all) let id: UInt64
+    access(all) let name: String
+    access(all) let description: String
+    access(all) let managementFeeBps: UInt64
+    access(all) let totalShares: UFix64
+    access(all) let trumpBalance: UFix64
+    access(all) let usdfBalance: UFix64
 
     init(
-        id: Flindex.IndexID,
+        id: UInt64,
         name: String,
         description: String,
         managementFeeBps: UInt64,
@@ -30,7 +30,7 @@ pub struct IndexInfo {
     }
 }
 
-pub fun main(indexID: Flindex.IndexID): IndexInfo {
+access(all) fun main(indexID: UInt64): IndexInfo {
     let indexRef = Flindex.borrowIndexPublic(id: indexID) ?? panic("Index not found")
     let metadata = indexRef.getMetadata()
     let balances = indexRef.getBalances()

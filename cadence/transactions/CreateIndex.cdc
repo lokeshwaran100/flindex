@@ -53,7 +53,11 @@ transaction(
     }
 
     destroy() {
-        destroy self.trumpVault
-        destroy self.usdfVault
+        if self.trumpVault != nil {
+            destroy self.trumpVault!
+        }
+        if self.usdfVault != nil {
+            destroy self.usdfVault!
+        }
     }
 }

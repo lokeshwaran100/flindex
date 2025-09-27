@@ -6,7 +6,7 @@ import "Flindex"
 /// Buys Flindex shares by supplying Flow and swapping into TRUMP/USDF via configured swappers.
 /// Connector capabilities can live on any account; pass the provider address and capability path for each route.
 transaction(
-    indexID: Flindex.IndexID,
+    indexID: UInt64,
     flowAmount: UFix64,
     flowVaultPath: StoragePath,
     flowToTrumpProvider: Address,
@@ -48,21 +48,21 @@ transaction(
         self.usdfToFlowCap = getAccount(usdfToFlowProvider)
             .getCapability<&{DeFiActions.Swapper}>(usdfToFlowPath)
 
-        assert(self.flowToTrumpCap.check(), message: "Invalid Flow→TRUMP swapper capability")
-        assert(self.flowToUsdfCap.check(), message: "Invalid Flow→USDF swapper capability")
-        assert(self.trumpToFlowCap.check(), message: "Invalid TRUMP→Flow swapper capability")
-        assert(self.usdfToFlowCap.check(), message: "Invalid USDF→Flow swapper capability")
+        assert(self.flowToTrumpCap.check(), message: "Invalid Flow->TRUMP swapper capability")
+        assert(self.flowToUsdfCap.check(), message: "Invalid Flow->USDF swapper capability")
+        assert(self.trumpToFlowCap.check(), message: "Invalid TRUMP->Flow swapper capability")
+        assert(self.usdfToFlowCap.check(), message: "Invalid USDF->Flow swapper capability")
     }
 
     execute {
         let flowToTrump = self.flowToTrumpCap.borrow()
-            ?? panic("Unable to borrow Flow→TRUMP swapper")
+            ?? panic("Unable to borrow Flow->TRUMP swapper")
         let flowToUsdf = self.flowToUsdfCap.borrow()
-            ?? panic("Unable to borrow Flow→USDF swapper")
+            ?? panic("Unable to borrow Flow->USDF swapper")
         let trumpToFlow = self.trumpToFlowCap.borrow()
-            ?? panic("Unable to borrow TRUMP→Flow swapper")
+            ?? panic("Unable to borrow TRUMP->Flow swapper")
         let usdfToFlow = self.usdfToFlowCap.borrow()
-            ?? panic("Unable to borrow USDF→Flow swapper")
+            ?? panic("Unable to borrow USDF->Flow swapper")
 
         let minted = self.index.buy(
             investor: self.investor,

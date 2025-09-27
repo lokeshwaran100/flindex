@@ -1,6 +1,6 @@
 import "Flindex"
 
 /// Returns the list of active Flindex index identifiers.
-pub fun main(): [Flindex.IndexID] {
+access(all) fun main(): [UInt64] {
     return Flindex.getIndexIDs()
 }

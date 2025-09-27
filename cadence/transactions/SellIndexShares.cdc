@@ -7,7 +7,7 @@ import "Flindex"
 /// routing the assets through configured swappers. The same connectors used for buying can be
 /// reused here when selling.
 transaction(
-    indexID: Flindex.IndexID,
+    indexID: UInt64,
     shares: UFix64,
     flowVaultPath: StoragePath,
     flowToTrumpProvider: Address,
@@ -45,21 +45,21 @@ transaction(
         self.usdfToFlowCap = getAccount(usdfToFlowProvider)
             .getCapability<&{DeFiActions.Swapper}>(usdfToFlowPath)
 
-        assert(self.flowToTrumpCap.check(), message: "Invalid Flow→TRUMP swapper capability")
-        assert(self.flowToUsdfCap.check(), message: "Invalid Flow→USDF swapper capability")
-        assert(self.trumpToFlowCap.check(), message: "Invalid TRUMP→Flow swapper capability")
-        assert(self.usdfToFlowCap.check(), message: "Invalid USDF→Flow swapper capability")
+        assert(self.flowToTrumpCap.check(), message: "Invalid Flow->TRUMP swapper capability")
+        assert(self.flowToUsdfCap.check(), message: "Invalid Flow->USDF swapper capability")
+        assert(self.trumpToFlowCap.check(), message: "Invalid TRUMP->Flow swapper capability")
+        assert(self.usdfToFlowCap.check(), message: "Invalid USDF->Flow swapper capability")
     }
 
     execute {
         let flowToTrump = self.flowToTrumpCap.borrow()
-            ?? panic("Unable to borrow Flow→TRUMP swapper")
+            ?? panic("Unable to borrow Flow->TRUMP swapper")
         let flowToUsdf = self.flowToUsdfCap.borrow()
-            ?? panic("Unable to borrow Flow→USDF swapper")
+            ?? panic("Unable to borrow Flow->USDF swapper")
         let trumpToFlow = self.trumpToFlowCap.borrow()
-            ?? panic("Unable to borrow TRUMP→Flow swapper")
+            ?? panic("Unable to borrow TRUMP->Flow swapper")
         let usdfToFlow = self.usdfToFlowCap.borrow()
-            ?? panic("Unable to borrow USDF→Flow swapper")
+            ?? panic("Unable to borrow USDF->Flow swapper")
 
         let payout <- self.index.sell(
             investor: self.investor,

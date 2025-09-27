@@ -6,29 +6,27 @@ import "DeFiActions"
 /// Investors contribute Flow and receive shares that represent proportional ownership in the
 /// underlying vaults. Flow contributions are split evenly between TRUMP and USDF during buys,
 /// and redemptions exit proportionally from both assets.
-pub contract Flindex {
+access(all) contract Flindex {
 
-    pub type IndexID = UInt64
+    access(all) let AdminStoragePath: StoragePath
+    access(all) let AdminPrivatePath: PrivatePath
+    access(all) let FlowVaultType: Type
+    access(all) let UserPositionsStoragePath: StoragePath
+    access(all) let UserPositionsPublicPath: PublicPath
+    access(all) let holdingsEpsilon: UFix64
 
-    pub let AdminStoragePath: StoragePath
-    pub let AdminPrivatePath: PrivatePath
-    pub let FlowVaultType: Type
-    pub let UserPositionsStoragePath: StoragePath
-    pub let UserPositionsPublicPath: PublicPath
-    pub let holdingsEpsilon: UFix64
+    access(self) var nextIndexID: UInt64
+    access(self) var indices: @{UInt64: Index}
 
-    access(self) var nextIndexID: IndexID
-    access(self) var indices: @{IndexID: @Index}
+    access(all) event IndexCreated(id: UInt64, creator: Address)
+    access(all) event IndexBought(id: UInt64, user: Address, flowIn: UFix64, sharesOut: UFix64)
+    access(all) event IndexSold(id: UInt64, user: Address, sharesIn: UFix64, flowOut: UFix64)
 
-    pub event IndexCreated(id: IndexID, creator: Address)
-    pub event IndexBought(id: IndexID, user: Address, flowIn: UFix64, sharesOut: UFix64)
-    pub event IndexSold(id: IndexID, user: Address, sharesIn: UFix64, flowOut: UFix64)
-
-    pub struct IndexMetadata {
-        pub let name: String
-        pub let description: String
-        pub let managementFeeBps: UInt64
-        pub let createdAt: UFix64
+    access(all) struct IndexMetadata {
+        access(all) let name: String
+        access(all) let description: String
+        access(all) let managementFeeBps: UInt64
+        access(all) let createdAt: UFix64
 
         init(name: String, description: String, managementFeeBps: UInt64, createdAt: UFix64) {
             self.name = name
@@ -38,15 +36,25 @@ pub contract Flindex {
         }
     }
 
-    pub resource interface IndexPublic {
-        pub fun getID(): IndexID
-        pub fun getCreator(): Address
-        pub fun getMetadata(): IndexMetadata
-        pub fun getTotalShares(): UFix64
-        pub fun getHolding(of: Address): UFix64
-        pub fun getBalances(): (trump: UFix64, usdf: UFix64)
-        pub fun getTrumpVaultType(): Type
-        pub fun getUsdfVaultType(): Type
+    access(all) struct IndexBalances {
+        access(all) let trump: UFix64
+        access(all) let usdf: UFix64
+
+        init(trump: UFix64, usdf: UFix64) {
+            self.trump = trump
+            self.usdf = usdf
+        }
+    }
+
+    access(all) resource interface IndexPublic {
+        access(all) fun getID(): UInt64
+        access(all) fun getCreator(): Address
+        access(all) fun getMetadata(): IndexMetadata
+        access(all) fun getTotalShares(): UFix64
+        access(all) fun getHolding(of: Address): UFix64
+        access(all) fun getBalances(): IndexBalances
+        access(all) fun getTrumpVaultType(): Type
+        access(all) fun getUsdfVaultType(): Type
     }
 
     access(contract) fun withinTolerance(_ lhs: UFix64, _ rhs: UFix64, tolerance: UFix64): Bool {
@@ -55,13 +63,13 @@ pub contract Flindex {
         return max - min <= tolerance
     }
 
-    pub resource Admin {
-        pub fun createIndex(
+    access(all) resource Admin {
+        access(all) fun createIndex(
             creator: Address,
             metadata: IndexMetadata,
             trumpVault: @{FungibleToken.Vault},
             usdfVault: @{FungibleToken.Vault}
-        ): IndexID {
+        ): UInt64 {
             pre {
                 trumpVault.getType() != usdfVault.getType(): "Index assets must be distinct"
             }
@@ -81,16 +89,16 @@ pub contract Flindex {
             return id
         }
 
-        pub fun removeIndex(id: IndexID) {
+        access(all) fun removeIndex(id: UInt64) {
             let removed <- Flindex.indices.remove(key: id) ?? panic("Index not found")
             destroy removed
         }
     }
 
-    pub resource Index: IndexPublic {
-        pub let id: IndexID
-        pub let creator: Address
-        pub let metadata: IndexMetadata
+    access(all) resource Index: IndexPublic {
+        access(all) let id: UInt64
+        access(all) let creator: Address
+        access(all) let metadata: IndexMetadata
         access(self) let trumpVaultType: Type
         access(self) let usdfVaultType: Type
         access(self) var trumpVault: @{FungibleToken.Vault}
@@ -99,7 +107,7 @@ pub contract Flindex {
         access(self) var totalShares: UFix64
 
         init(
-            id: IndexID,
+            id: UInt64,
             creator: Address,
             metadata: IndexMetadata,
             trumpVault: @{FungibleToken.Vault},
@@ -116,40 +124,38 @@ pub contract Flindex {
             self.totalShares = 0.0
         }
 
-        destroy() {
-            destroy self.trumpVault
-            destroy self.usdfVault
-        }
-
-        pub fun getID(): IndexID {
+        access(all) fun getID(): UInt64 {
             return self.id
         }
 
-        pub fun getCreator(): Address {
+        access(all) fun getCreator(): Address {
             return self.creator
         }
 
-        pub fun getMetadata(): IndexMetadata {
+        access(all) fun getMetadata(): IndexMetadata {
             return self.metadata
         }
 
-        pub fun getTrumpVaultType(): Type {
+        access(all) fun getTrumpVaultType(): Type {
             return self.trumpVaultType
         }
 
-        pub fun getUsdfVaultType(): Type {
+        access(all) fun getUsdfVaultType(): Type {
             return self.usdfVaultType
         }
 
-        pub fun getTotalShares(): UFix64 {
+        access(all) fun getTotalShares(): UFix64 {
             return self.totalShares
         }
 
-        pub fun getBalances(): (trump: UFix64, usdf: UFix64) {
-            return (trump: self.trumpVault.balance, usdf: self.usdfVault.balance)
+        access(all) fun getBalances(): IndexBalances {
+            return IndexBalances(
+                trump: self.trumpVault.balance,
+                usdf: self.usdfVault.balance
+            )
         }
 
-        pub fun getHolding(of: Address): UFix64 {
+        access(all) fun getHolding(of: Address): UFix64 {
             return self.holdings[of] ?? 0.0
         }
 
@@ -175,7 +181,7 @@ pub contract Flindex {
             return quote.outAmount
         }
 
-        pub fun buy(
+        access(all) fun buy(
             investor: Address,
             payment: @FlowToken.Vault,
             flowToTrump: &{DeFiActions.Swapper},
@@ -185,12 +191,12 @@ pub contract Flindex {
         ): UFix64 {
             pre {
                 payment.balance > 0.0: "Payment must be positive"
-                flowToTrump.inType() == Flindex.FlowVaultType: "Invalid Flow→TRUMP swapper input type"
-                flowToTrump.outType() == self.trumpVaultType: "Invalid Flow→TRUMP swapper output type"
-                flowToUsdf.inType() == Flindex.FlowVaultType: "Invalid Flow→USDF swapper input type"
-                flowToUsdf.outType() == self.usdfVaultType: "Invalid Flow→USDF swapper output type"
-                trumpToFlow.outType() == Flindex.FlowVaultType: "Invalid TRUMP→Flow swapper output type"
-                usdfToFlow.outType() == Flindex.FlowVaultType: "Invalid USDF→Flow swapper output type"
+                flowToTrump.inType() == Flindex.FlowVaultType: "Invalid Flow->TRUMP swapper input type"
+                flowToTrump.outType() == self.trumpVaultType: "Invalid Flow->TRUMP swapper output type"
+                flowToUsdf.inType() == Flindex.FlowVaultType: "Invalid Flow->USDF swapper input type"
+                flowToUsdf.outType() == self.usdfVaultType: "Invalid Flow->USDF swapper output type"
+                trumpToFlow.outType() == Flindex.FlowVaultType: "Invalid TRUMP->Flow swapper output type"
+                usdfToFlow.outType() == Flindex.FlowVaultType: "Invalid USDF->Flow swapper output type"
             }
 
             let navBefore = self.estimateValue(balance: self.trumpVault.balance, with: trumpToFlow)
@@ -228,7 +234,7 @@ pub contract Flindex {
             return sharesMinted
         }
 
-        pub fun sell(
+        access(all) fun sell(
             investor: Address,
             shares: UFix64,
             flowToTrump: &{DeFiActions.Swapper},
@@ -239,8 +245,8 @@ pub contract Flindex {
             pre {
                 shares > 0.0: "Shares must be positive"
                 shares <= self.holdings[investor] ?? 0.0: "Insufficient shares"
-                trumpToFlow.outType() == Flindex.FlowVaultType: "Invalid TRUMP→Flow swapper output type"
-                usdfToFlow.outType() == Flindex.FlowVaultType: "Invalid USDF→Flow swapper output type"
+                trumpToFlow.outType() == Flindex.FlowVaultType: "Invalid TRUMP->Flow swapper output type"
+                usdfToFlow.outType() == Flindex.FlowVaultType: "Invalid USDF->Flow swapper output type"
             }
 
             assert(self.totalShares > 0.0, message: "No shares in circulation")
@@ -268,18 +274,18 @@ pub contract Flindex {
             let current = self.holdings[investor] ?? 0.0
             let remaining = current - shares
             if remaining <= Flindex.holdingsEpsilon {
-                self.holdings.remove(key: investor)
+                let _ = self.holdings.remove(key: investor)
             } else {
                 self.holdings[investor] = remaining
             }
             self.assertHoldingsInvariant()
 
             emit IndexSold(id: self.id, user: investor, sharesIn: shares, flowOut: flowVault.balance)
-            return <-flowVault
+            return <-flowVault as! @FlowToken.Vault
         }
     }
 
-    pub fun borrowIndex(id: IndexID): &Index {
+    access(all) fun borrowIndex(id: UInt64): &Index {
         let ref = &self.indices[id] as &Index?
         if ref == nil {
             panic("Index not found")
@@ -287,39 +293,42 @@ pub contract Flindex {
         return ref!
     }
 
-    pub fun borrowIndexPublic(id: IndexID): &Index{IndexPublic}? {
-        return &self.indices[id] as &Index{IndexPublic}?
+    access(all) fun borrowIndexPublic(id: UInt64): &Index? {
+        if let indexRef = &self.indices[id] as &Index? {
+            return indexRef
+        }
+        return nil
     }
 
-    pub fun getIndexIDs(): [IndexID] {
+    access(all) fun getIndexIDs(): [UInt64] {
         return self.indices.keys
     }
 
-    pub resource UserPositions {
-        pub var holdings: {IndexID: UFix64}
+    access(all) resource UserPositions {
+        access(all) var holdings: {UInt64: UFix64}
 
         init() {
             self.holdings = {}
         }
 
-        pub fun set(id: IndexID, shares: UFix64) {
+        access(all) fun set(id: UInt64, shares: UFix64) {
             if shares == 0.0 {
-                self.holdings.remove(key: id)
+                let _ = self.holdings.remove(key: id)
             } else {
                 self.holdings[id] = shares
             }
         }
 
-        pub fun get(id: IndexID): UFix64 {
+        access(all) fun get(id: UInt64): UFix64 {
             return self.holdings[id] ?? 0.0
         }
 
-        pub fun getAll(): {IndexID: UFix64} {
+        access(all) fun getAll(): {UInt64: UFix64} {
             return self.holdings
         }
     }
 
-    pub fun createUserPositions(): @UserPositions {
+    access(all) fun createUserPositions(): @UserPositions {
         return <-create UserPositions()
     }
 
@@ -333,11 +342,7 @@ pub contract Flindex {
         self.nextIndexID = 1
         self.indices <- {}
 
-        self.account.save(<-create Admin(), to: self.AdminStoragePath)
-        self.account.link<&Admin>(self.AdminPrivatePath, target: self.AdminStoragePath)
+        self.account.storage.save(<-create Admin(), to: self.AdminStoragePath)
     }
 
-    destroy() {
-        destroy self.indices
-    }
 }
